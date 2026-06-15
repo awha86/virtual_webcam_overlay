@@ -159,6 +159,7 @@ def main():
     parser.add_argument("--width", type=int, default=1280, help="Requested width")
     parser.add_argument("--height", type=int, default=720, help="Requested height")
     parser.add_argument("--fps", type=int, default=30, help="Target FPS (default 30)")
+    parser.add_argument("--preview", action="store_true", help="Show local preview window")
     args = parser.parse_args()
 
     # Start HTTP API in background thread
@@ -223,6 +224,11 @@ def main():
             # Send to virtual camera (expects RGB)
             vcam.send(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
+            if args.preview:
+                cv2.imshow("Webcam Overlay Preview", frame)
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    break
+
             # Throttle
             sleep = target_dt - (time.perf_counter() - t0)
             if sleep > 0:
@@ -233,6 +239,8 @@ def main():
     finally:
         cap.release()
         vcam.close()
+        if args.preview:
+            cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
